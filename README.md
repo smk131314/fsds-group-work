@@ -1,5 +1,11 @@
 # fsds-group-work
 
+## Git collaboration rules
+  - Don't push directly to `main`.
+  - Always checkout(create) new branch from the newest version of `main`.
+  - Pull origin(remote) `main` changes first, before creating a new branch.
+  - The `main` branch can only be merged after approval from all members.
+    
 ## directories
 - `/data`
 
