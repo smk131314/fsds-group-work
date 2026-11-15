@@ -17,7 +17,7 @@ names(bnb)
 glimpse(bnb)
 
 # View first 15 rows and 8 columns
-print(bnb[1:15, 1:8])
+print(bnb[1:79])
 
 # 3. Select relevant variables and clean data
 bnb_clean <- bnb %>%
