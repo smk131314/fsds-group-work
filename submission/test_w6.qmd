@@ -1,0 +1,186 @@
+
+---
+title: "London borough and airbnb gis data"
+format:
+  html:
+    code-fold: true
+jupyter: python3
+---
+
+For a demonstration of a line plot on a polar axis, see @fig-polar.
+
+
+```{python}
+
+import pandas as pd
+import geopandas as gpd
+import matplotlib.pyplot as plt
+
+```
+
+In the reading week , we have discussed our readings ,  indentified a initial provisional direction ,then we read the base data,
+Our Group member have indentifed our useful colunmns...
+```{python}
+import pandas as pd
+
+# 1. Load data
+url = "https://orca.casa.ucl.ac.uk/~jreades/data/20260619-London-listings.csv.gz"
+
+bnb = pd.read_csv(
+    url,
+    compression="gzip",
+    low_memory=False,
+    dtype={"id": "Int64", "host_id": "Int64"},
+)
+
+# 2. Inspect original dataset
+display(bnb.head())            # 在 Jupyter 中预览表格
+print(bnb.columns.tolist())    # 对应 names(bnb)
+bnb.info()                     # 查看列类型和非空数量
+
+display(bnb.iloc[:15, :8])     # 前 15 行、前 8 列
+
+selected_columns = [
+    # Location
+    "latitude",
+    "longitude",
+    "neighbourhood_cleansed",
+
+    # Listing and host
+    "id",
+    "host_id",
+    "host_location",
+    "license",
+    "room_type",
+    "property_type",
+
+    # Price and estimated activity
+    "price",
+    "estimated_occupancy_l365d",
+    "estimated_revenue_l365d",
+
+    # Calendar availability
+    "availability_90",
+    "availability_365",
+]
+
+bnb_clean = bnb.loc[:, selected_columns].copy()
+
+# Convert values such as "$1,250.00" to 1250.0
+bnb_clean["price"] = pd.to_numeric(
+    bnb_clean["price"].astype("string").str.replace(r"[$£,]", "", regex=True),
+    errors="coerce",
+)
+
+# Check the selected columns and their missing values
+display(bnb_clean.head())
+display(bnb_clean.isna().sum().rename("missing_count").to_frame())
+```
+
+adding them to the map , we have this initial mapping of our concernec values.
+https://data.insideairbnb.com/united-kingdom/england/london/2026-09-17/visualisations/neighbourhoods.geojson
+
+
+We use the 19 June 2026 Inside Airbnb London to count visible entire-home listings by borough. 
+We identify entire-home listings using room_type and count each unique listing id once. We classify a host account as multi-listing if its host_id is associated with at least two distinct entire-home listings across London. Borough-level dwelling stock will allow us to report listing counts per 1,000 dwellings.
+
+```{python}
+
+
+# Keep one row per visible entire-home listing
+entire_homes = (
+    bnb_clean.loc[
+        bnb_clean["room_type"].eq("Entire home/apt"),
+        ["id", "host_id", "neighbourhood_cleansed"],
+    ]
+    .dropna(subset=["id"])
+    .drop_duplicates(subset="id")
+    .copy()
+)
+
+# Count each account's entire-home listings across all of London
+entire_homes["host_listing_count"] = (
+    entire_homes.groupby("host_id")["id"].transform("size")
+)
+
+# Flag listings associated with an account that has at least two entire homes
+entire_homes["host_identified"] = entire_homes["host_id"].notna()
+entire_homes["multi_listing_host"] = (
+    entire_homes["host_listing_count"].ge(2)
+)
+
+# Summarise the listings by borough
+borough_summary = (
+    entire_homes.dropna(subset=["neighbourhood_cleansed"])
+    .groupby("neighbourhood_cleansed", as_index=False)
+    .agg(
+        listing_count=("id", "size"),
+        listings_with_host_id=("host_identified", "sum"),
+        multi_host_listing_count=("multi_listing_host", "sum"),
+    )
+)
+
+borough_summary["multi_host_listing_pct"] = (
+    borough_summary["multi_host_listing_count"]
+    .div(borough_summary["listings_with_host_id"].replace(0, float("nan")))
+    .mul(100)
+)
+
+print("Unique entire-home listings across London:", len(entire_homes))
+print("Listings without a borough:", entire_homes["neighbourhood_cleansed"].isna().sum())
+print("Listings without a host ID:", entire_homes["host_id"].isna().sum())
+
+display(borough_summary.sort_values("listing_count", ascending=False).head(10))
+
+
+
+```
+
+```{python}
+```{python}
+import geopandas as gpd
+import matplotlib.pyplot as plt
+
+boroughs_url = (
+    "https://data.insideairbnb.com/united-kingdom/england/london/"
+    "2026-09-17/visualisations/neighbourhoods.geojson"
+)
+boroughs = gpd.read_file(boroughs_url)
+
+london_map = boroughs.merge(
+    borough_summary,
+    left_on="neighbourhood",
+    right_on="neighbourhood_cleansed",
+    how="left",
+    validate="one_to_one",
+)
+
+expected = borough_summary["listing_count"].sum()
+mapped = london_map["listing_count"].sum()
+print(f"Listings represented on the map: {mapped:,.0f} / {expected:,.0f}")
+
+if mapped != expected:
+    unmatched = set(borough_summary["neighbourhood_cleansed"]) - set(
+        boroughs["neighbourhood"]
+    )
+    raise ValueError(f"Borough names missing from the map: {sorted(unmatched)}")
+
+london_map["listing_count"] = london_map["listing_count"].fillna(0).astype(int)
+
+fig, ax = plt.subplots(figsize=(9, 8))
+london_map.to_crs(27700).plot(
+    column="listing_count",
+    cmap="BuPu",
+    legend=True,
+    edgecolor="white",
+    linewidth=0.5,
+    ax=ax,
+)
+ax.set_title("Entire-home Airbnb listings by London borough\n19 June 2026")
+ax.set_axis_off()
+
+fig.savefig("london_airbnb_boroughs.png", dpi=160, bbox_inches="tight")
+plt.show()
+```
+
+
