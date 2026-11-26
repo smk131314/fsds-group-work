@@ -51,7 +51,7 @@ Word limit: 2,500 words, including references.
    relevant figures or tables to the 3 December meeting so we can
    integrate them into the shared QMD.
 
-   view outcome: in terminal'''quarto preview group_work_report.qmd --to html
+   view outcome: in terminal'''quarto preview filename.qmd --to html
 -->
 ## Code chunck example
 ```{python}

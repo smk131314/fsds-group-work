@@ -1,0 +1,133 @@
+---
+title: "Group Analysis"
+subtitle: "FSDS Group Project"
+author: "[Group members]"
+date: last-modified
+
+bibliography: bio.bib
+csl: harvard-cite-them-right.csl
+
+execute:
+  echo: false
+
+format:
+  html:
+    page-layout: article
+    toc: true
+    link-citations: true
+    grid:
+      sidebar-width: 300px
+      body-width: 900px
+      margin-width: 300px
+      gutter-width: 1.5rem
+  pdf:
+    toc: true
+    papersize: a4
+    mainfont: Spectral
+---
+
+<!--
+W7 meeting · 26 November
+
+Word limit: 2,500 words, including references.
+
+- Agree on what “out of control” means and review the first borough-level table.
+- Assign someone to find borough-level housing stock data.
+- Assign a lead for each question and agree on the analysis, figures and text
+  each person will bring to the 3 December integration meeting.
+
+  ## Group tasks agreed today
+
+1. **GitHub and submission — Jade.** Jade will organise the shared
+   GitHub repository and coordinate the final submission.
+
+2. **Draft paragraphs individually.** Everyone can write a draft in
+   their own words. Next week, we will compare drafts and combine them
+   into one briefing with a consistent argument and tone.
+
+3. **Assign briefing questions today.** Agree who will lead each
+   question and what analysis or figures are needed to answer it.
+   Everyone should bring their draft text, Python code, and any
+   relevant figures or tables to the 3 December meeting so we can
+   integrate them into the shared QMD.
+
+   view outcome: in terminal'''quarto preview filename.qmd --to html
+-->
+## Code chunck example
+```{python}
+#| label: fig-income
+#| fig-cap: "Median household income by borough."
+ax = df.plot.bar(x="borough", y="income")
+```
+
+As @fig-income shows, income varies considerably across London.
+## 1. Executive summary
+
+[Write this last. Give the Mayor the main finding, the estimated scale
+of the proposal and a recommended response. State the most important
+uncertainty in one sentence.]
+
+## 2. Policy context
+
+A newspaper has reported that the Mayor’s social mobility adviser owns
+three homes and lists two on Airbnb, including one that remains
+council-owned. The opposition proposes requiring professional landlords
+to register their properties and face higher Council Tax rates.
+
+## 3. Is Airbnb “out of control” in London?
+
+[W7 draft. Define what would count as evidence of a problem. Start with
+a borough-level table or ranked bar chart of entire-home listings.
+If comparable housing stock data are available, map entire-home listings
+per 1,000 dwellings to show their local scale. Use a line chart if there
+are comparable snapshots to show change over time.]
+
+## 4. How many professional landlords are there?
+
+[W8 draft. Use host IDs to count the number of hosts under a proposed
+definition. For discussion, compare hosts with at least two entire-home
+listings in London against those with at least three. Explain why the
+thresholds are plausible and what a platform host ID can tell us about
+property ownership.]
+
+## 5. How many properties could the proposal affect?
+
+[W9 draft. Apply the Q2 definitions to the listing data and count the
+distinct listings that would fall within scope under each scenario.
+Agree whether to count every listing linked to a qualifying host or
+only their entire-home listings. State any limits to treating listing
+counts as property counts.]
+
+## 6. What are the likely benefits and drawbacks?
+
+[Compare the implications for the Mayor, residents and the city.
+Discuss registration and higher Council Tax separately, since each
+has different effects and implementation requirements. Everyone can
+draft a paragraph. Combine the strongest arguments next week.]
+
+## 7. Can the story be reframed around social mobility or housing opportunity?
+
+[Use the findings to draft a defensible public message. Explain whose
+housing opportunities could improve, through what action, and what
+evidence would support that claim. Compare individual drafts next week.]
+
+## References
+
+::: {#refs}
+:::
+
+<!--
+INTERNAL WORKING NOTES — these are hidden from the rendered report.
+
+Workstream                     Owner     Reviewer     Output              Due
+Data cleaning and definitions  [Name]    [Name]       Clean data + notes  [Date]
+Borough analysis and map       [Name]    [Name]       Map + table         [Date]
+Policy context and references  [Name]    [Name]       Draft + sources     [Date]
+Integration and final render   [Name]    [Name]       Checked HTML        [Date]
+
+Decisions for the next meeting
+- Confirm the research question and main denominator.
+- Agree on the multi-listing host threshold and borough comparison criteria.
+- Check snapshot availability before committing to a policy-event analysis.
+- Assign an owner and reviewer to each output.
+-->
